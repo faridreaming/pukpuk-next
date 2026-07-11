@@ -10,7 +10,10 @@ export function useCheckIn(habitId: string) {
     toastId: string | number
   } | null>(null)
 
-  async function commit(status: 'berhasil' | 'gagal') {
+  async function commit(
+    status: 'berhasil' | 'gagal',
+    onEvent?: (event: string) => void,
+  ) {
     const { data, error } = await supabase.rpc('create_check_in', {
       p_habit_id: habitId,
       p_status: status,
@@ -20,12 +23,16 @@ export function useCheckIn(habitId: string) {
       return
     }
     queryClient.invalidateQueries({ queryKey: ['habits'] })
-    if (data.event === 'stage_up') toast.success('Naik ke stage berikutnya! 🎉')
+    onEvent?.(data.event)
+    if (data.event === 'stage_up') toast.success('Naik ke stage berikutnya')
     if (data.event === 'endgame')
-      toast.success('Target akhir tercapai — masuk maintenance 🎉')
+      toast.success('Target akhir tercapai — masuk maintenance')
   }
 
-  function requestCheckIn(status: 'berhasil' | 'gagal') {
+  function requestCheckIn(
+    status: 'berhasil' | 'gagal',
+    onEvent?: (event: string) => void,
+  ) {
     if (pendingRef.current) {
       clearTimeout(pendingRef.current.timeoutId)
       toast.dismiss(pendingRef.current.toastId)
@@ -33,7 +40,7 @@ export function useCheckIn(habitId: string) {
 
     const timeoutId = window.setTimeout(() => {
       pendingRef.current = null
-      commit(status)
+      commit(status, onEvent)
     }, 5000)
 
     const toastId = toast(

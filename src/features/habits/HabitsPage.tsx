@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router'
+import gsap from 'gsap'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
-import { useCheckIn } from './useCheckIn'
+import { HabitCard } from './HabitCard'
 
 async function fetchHabits() {
   const { data, error } = await supabase
@@ -17,66 +18,15 @@ async function fetchTodayCheckIns() {
   const today = new Date().toISOString().slice(0, 10)
   const { data, error } = await supabase
     .from('check_ins')
-    .select('habit_id, status')
+    .select('habit_id')
     .eq('tanggal', today)
   if (error) throw error
-  return new Map(data.map((c) => [c.habit_id, c.status]))
-}
-
-function HabitRow({ habit }: { habit: any }) {
-  const queryClient = useQueryClient()
-  const { requestCheckIn } = useCheckIn(habit.id)
-  const { data: todayMap } = useQuery({
-    queryKey: ['today-checkins'],
-    queryFn: fetchTodayCheckIns,
-  })
-  const sudahCheckIn = todayMap?.has(habit.id)
-
-  async function handleRestart() {
-    const { error } = await supabase.rpc('restart_habit', {
-      p_habit_id: habit.id,
-    })
-    if (!error) queryClient.invalidateQueries({ queryKey: ['habits'] })
-  }
-
-  return (
-    <li className="flex items-center justify-between border-b py-3">
-      <span>
-        {habit.nama} — stage {habit.stage_saat_ini} · nyawa{' '}
-        {habit.nyawa_tersisa}
-        {habit.status === 'maintenance' && ' · maintenance'}
-        {habit.status === 'paused' && ' · paused'}
-      </span>
-
-      {habit.status === 'paused' ? (
-        <Button size="sm" variant="outline" onClick={handleRestart}>
-          Restart
-        </Button>
-      ) : (
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            disabled={sudahCheckIn}
-            onClick={() => requestCheckIn('berhasil')}
-          >
-            Berhasil
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={sudahCheckIn}
-            onClick={() => requestCheckIn('gagal')}
-          >
-            Gagal
-          </Button>
-        </div>
-      )}
-    </li>
-  )
+  return new Set(data.map((c) => c.habit_id))
 }
 
 export function HabitsPage() {
   const queryClient = useQueryClient()
+  const listRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     supabase.rpc('evaluate_all_habits_lazy').then(() => {
@@ -88,23 +38,67 @@ export function HabitsPage() {
     queryKey: ['habits'],
     queryFn: fetchHabits,
   })
+  const { data: todaySet } = useQuery({
+    queryKey: ['today-checkins'],
+    queryFn: fetchTodayCheckIns,
+  })
 
-  if (isLoading) return <p>Memuat habit...</p>
+  useEffect(() => {
+    if (!listRef.current || !habits?.length) return
+    const reduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    gsap.fromTo(
+      listRef.current.querySelectorAll('.habit-card'),
+      { opacity: 0, y: reduced ? 0 : 12 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: reduced ? 0 : 0.4,
+        stagger: reduced ? 0 : 0.06,
+      },
+    )
+  }, [habits])
+
+  if (isLoading)
+    return (
+      <p className="p-4" style={{ color: 'var(--pukpuk-parchment)' }}>
+        Memuat habit...
+      </p>
+    )
 
   return (
-    <div className="p-4">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Habit kamu</h1>
+    <div className="mx-auto max-w-xl p-4">
+      <div className="mb-6 flex items-center justify-between">
+        <h1
+          className="text-lg font-medium"
+          style={{ color: 'var(--pukpuk-parchment)' }}
+        >
+          Habit kamu
+        </h1>
         <Link to="/habits/new">
-          <Button>Tambah Habit</Button>
+          <Button size="sm">Tambah Habit</Button>
         </Link>
       </div>
-      {habits?.length === 0 && <p>Belum ada habit.</p>}
-      <ul>
+
+      {habits?.length === 0 && (
+        <p
+          className="text-sm"
+          style={{ color: 'var(--pukpuk-parchment)', opacity: 0.6 }}
+        >
+          Belum ada habit. Mulai satu buat lihat progresnya di sini.
+        </p>
+      )}
+
+      <div ref={listRef} className="space-y-3">
         {habits?.map((h) => (
-          <HabitRow key={h.id} habit={h} />
+          <HabitCard
+            key={h.id}
+            habit={h}
+            sudahCheckIn={todaySet?.has(h.id) ?? false}
+          />
         ))}
-      </ul>
+      </div>
     </div>
   )
 }

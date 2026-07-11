@@ -3,6 +3,7 @@ import { RootLayout } from '@/app/RootLayout'
 import { ProtectedRoute } from '@/app/ProtectedRoute'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { HabitsPage } from '@/features/habits/HabitsPage'
+import { CreateHabitWizard } from '@/features/habits/CreateHabitWizard'
 
 export const router = createBrowserRouter([
   {
@@ -12,7 +13,10 @@ export const router = createBrowserRouter([
       { path: 'login', element: <LoginPage /> },
       {
         element: <ProtectedRoute />,
-        children: [{ index: true, element: <HabitsPage /> }],
+        children: [
+          { index: true, element: <HabitsPage /> },
+          { path: 'habits/new', element: <CreateHabitWizard /> },
+        ],
       },
     ],
   },
