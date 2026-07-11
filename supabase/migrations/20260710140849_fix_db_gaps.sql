@@ -9,7 +9,11 @@ create type check_in_result as (
 
 -- ============================================================
 -- create_check_in v3: + row lock, + return event transisi
+-- (drop dulu -- return type berubah dari check_ins ke check_in_result,
+-- 'create or replace' tidak bisa dipakai untuk perubahan return type)
 -- ============================================================
+drop function if exists create_check_in(uuid, text);
+
 create or replace function create_check_in(p_habit_id uuid, p_status text)
 returns check_in_result
 language plpgsql
@@ -28,8 +32,6 @@ begin
     raise exception 'status harus berhasil atau gagal';
   end if;
 
-  -- 'for update' mengunci row ini sampai transaksi selesai:
-  -- request kedua yang datang bersamaan menunggu, bukan baca data basi
   select * into v_habit from habits where id = p_habit_id for update;
   if not found then
     raise exception 'habit not found or access denied';
@@ -127,13 +129,6 @@ grant execute on function restart_habit(uuid) to authenticated;
 -- ============================================================
 -- Constraint: stage_saat_ini harus valid, menunjuk stage_number
 -- yang benar-benar ada dan milik habit yang sama (gap #6)
---
--- 'deferrable initially deferred': pengecekan ditunda sampai akhir
--- transaksi -- WAJIB kalau proses "create habit" insert row habits
--- dan row habit_stages dalam transaksi yang sama (insert habit dulu
--- baru insert stages, keduanya harus satu transaksi/RPC, bukan dua
--- request terpisah -- kalau terpisah, insert habit akan ditolak
--- karena belum ada stage sama sekali di momen itu).
 -- ============================================================
 alter table habits
   add constraint stage_saat_ini_exists
