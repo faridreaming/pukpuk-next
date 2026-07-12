@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
+import { CheckInToastContent } from './CheckInToastContent'
 
 export function useCheckIn(habitId: string) {
   const queryClient = useQueryClient()
@@ -28,6 +29,11 @@ export function useCheckIn(habitId: string) {
     if (data.event === 'stage_up') toast.success('Naik ke stage berikutnya')
     if (data.event === 'endgame')
       toast.success('Target akhir tercapai — masuk maintenance')
+    if (data.event === 'life_lost') toast('Nyawa berkurang')
+    if (data.event === 'stage_down')
+      toast('Nyawa habis — turun ke stage sebelumnya')
+    if (data.event === 'paused')
+      toast('Nyawa habis di stage awal — habit di-pause')
   }
 
   function requestCheckIn(
@@ -45,7 +51,9 @@ export function useCheckIn(habitId: string) {
     }, 5000)
 
     const toastId = toast(
-      status === 'berhasil' ? 'Check-in: berhasil' : 'Check-in: gagal',
+      <CheckInToastContent
+        label={status === 'berhasil' ? 'Check-in: berhasil' : 'Check-in: gagal'}
+      />,
       {
         duration: 5000,
         action: {

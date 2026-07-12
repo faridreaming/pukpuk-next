@@ -5,7 +5,7 @@ export function RootLayout() {
   return (
     <>
       <Outlet />
-      <Toaster />
+      <Toaster position="bottom-center" />
     </>
   )
 }
