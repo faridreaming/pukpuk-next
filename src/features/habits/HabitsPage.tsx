@@ -9,7 +9,7 @@ import { HabitCard } from './HabitCard'
 async function fetchHabits() {
   const { data, error } = await supabase
     .from('habits')
-    .select('*, habit_stages(*)')
+    .select('*, habit_stages!habit_id(*)')
   if (error) throw error
   return data
 }
@@ -34,10 +34,13 @@ export function HabitsPage() {
     })
   }, [queryClient])
 
-  const { data: habits, isLoading } = useQuery({
-    queryKey: ['habits'],
-    queryFn: fetchHabits,
-  })
+  const {
+    data: habits,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({ queryKey: ['habits'], queryFn: fetchHabits })
+
   const { data: todaySet } = useQuery({
     queryKey: ['today-checkins'],
     queryFn: fetchTodayCheckIns,
@@ -64,6 +67,12 @@ export function HabitsPage() {
     return (
       <p className="p-4" style={{ color: 'var(--pukpuk-parchment)' }}>
         Memuat habit...
+      </p>
+    )
+  if (isError)
+    return (
+      <p className="p-4 text-sm" style={{ color: 'var(--pukpuk-brick)' }}>
+        Gagal memuat habit: {(error as Error).message}
       </p>
     )
 
