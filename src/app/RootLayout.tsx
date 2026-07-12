@@ -3,9 +3,9 @@ import { Toaster } from '@/components/ui/sonner'
 
 export function RootLayout() {
   return (
-      <>
-        <Outlet />
-        <Toaster />
-      </>
+    <>
+      <Outlet />
+      <Toaster />
+    </>
   )
 }

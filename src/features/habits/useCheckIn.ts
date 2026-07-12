@@ -23,6 +23,7 @@ export function useCheckIn(habitId: string) {
       return
     }
     queryClient.invalidateQueries({ queryKey: ['habits'] })
+    queryClient.invalidateQueries({ queryKey: ['today-checkins'] })
     onEvent?.(data.event)
     if (data.event === 'stage_up') toast.success('Naik ke stage berikutnya')
     if (data.event === 'endgame')
