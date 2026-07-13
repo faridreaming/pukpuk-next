@@ -46,8 +46,11 @@ export function HabitsPage() {
     queryFn: fetchTodayCheckIns,
   })
 
+  const hasAnimatedRef = useRef(false)
+
   useEffect(() => {
-    if (!listRef.current || !habits?.length) return
+    if (!listRef.current || !habits?.length || hasAnimatedRef.current) return
+    hasAnimatedRef.current = true
     const reduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches
