@@ -5,6 +5,8 @@ import gsap from 'gsap'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
 import { HabitCard } from './HabitCard'
+import { Plus, Target } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 async function fetchHabits() {
   const { data, error } = await supabase
@@ -66,12 +68,26 @@ export function HabitsPage() {
     )
   }, [habits])
 
-  if (isLoading)
+  if (isLoading) {
     return (
-      <p className="p-4" style={{ color: 'var(--pukpuk-parchment)' }}>
-        Memuat habit...
-      </p>
+      <div className="mx-auto max-w-xl space-y-3 p-4">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="rounded-xl border p-4"
+            style={{
+              borderColor: 'var(--pukpuk-ash)',
+              backgroundColor: 'var(--pukpuk-panel)',
+            }}
+          >
+            <Skeleton className="mb-3 h-5 w-1/3 bg-[var(--pukpuk-ash)]" />
+            <Skeleton className="mb-2 h-3 w-full bg-[var(--pukpuk-ash)]" />
+            <Skeleton className="h-1 w-full bg-[var(--pukpuk-ash)]" />
+          </div>
+        ))}
+      </div>
     )
+  }
   if (isError)
     return (
       <p className="p-4 text-sm" style={{ color: 'var(--pukpuk-brick)' }}>
@@ -89,17 +105,28 @@ export function HabitsPage() {
           Habit kamu
         </h1>
         <Link to="/habits/new">
-          <Button size="sm">Tambah Habit</Button>
+          <Button size="sm">
+            <Plus className="mr-1 h-4 w-4" /> Tambah Habit
+          </Button>
         </Link>
       </div>
 
       {habits?.length === 0 && (
-        <p
-          className="text-sm"
-          style={{ color: 'var(--pukpuk-parchment)', opacity: 0.6 }}
+        <div
+          className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-8 text-center"
+          style={{ borderColor: 'var(--pukpuk-ash)' }}
         >
-          Belum ada habit. Mulai satu buat lihat progresnya di sini.
-        </p>
+          <Target
+            className="h-8 w-8"
+            style={{ color: 'var(--pukpuk-ember)' }}
+          />
+          <p
+            className="text-sm"
+            style={{ color: 'var(--pukpuk-parchment)', opacity: 0.6 }}
+          >
+            Belum ada habit. Mulai satu buat lihat progresnya di sini.
+          </p>
+        </div>
       )}
 
       <div ref={listRef} className="space-y-3">

@@ -1,3 +1,4 @@
+import { Check, X, RotateCcw, PauseCircle, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
@@ -47,13 +48,19 @@ export function HabitCard({
           {habit.nama}
         </h3>
         {habit.status === 'maintenance' && (
-          <span className="text-xs" style={{ color: 'var(--pukpuk-moss)' }}>
-            maintenance
+          <span
+            className="flex items-center gap-1 text-xs"
+            style={{ color: 'var(--pukpuk-moss)' }}
+          >
+            <Sparkles className="h-3 w-3" /> maintenance
           </span>
         )}
         {habit.status === 'paused' && (
-          <span className="text-xs" style={{ color: 'var(--pukpuk-brick)' }}>
-            paused
+          <span
+            className="flex items-center gap-1 text-xs"
+            style={{ color: 'var(--pukpuk-brick)' }}
+          >
+            <PauseCircle className="h-3 w-3" /> paused
           </span>
         )}
       </div>
@@ -73,7 +80,7 @@ export function HabitCard({
       <div className="mt-4 flex gap-2">
         {habit.status === 'paused' ? (
           <Button size="sm" variant="outline" onClick={handleRestart}>
-            Restart
+            <RotateCcw className="mr-1 h-4 w-4" /> Restart
           </Button>
         ) : habit.status === 'active' ? (
           <>
@@ -85,7 +92,7 @@ export function HabitCard({
                 requestCheckIn('berhasil', (e) => setLastEvent(e as any))
               }}
             >
-              Berhasil
+              <Check className="mr-1 h-4 w-4" /> Berhasil
             </Button>
             <Button
               size="sm"
@@ -93,7 +100,7 @@ export function HabitCard({
               disabled={sudahCheckIn || isPending}
               onClick={() => requestCheckIn('gagal')}
             >
-              Gagal
+              <X className="mr-1 h-4 w-4" /> Gagal
             </Button>
           </>
         ) : null}
