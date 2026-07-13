@@ -106,4 +106,32 @@ describe('useCheckIn', () => {
 
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['today-checkins'] })
   })
+
+  it('isPending true segera setelah requestCheckIn, false lagi setelah commit', async () => {
+    const { Wrapper } = createWrapper()
+    const { result } = renderHook(() => useCheckIn('habit-1'), {
+      wrapper: Wrapper,
+    })
+
+    act(() => result.current.requestCheckIn('berhasil'))
+    expect(result.current.isPending).toBe(true)
+
+    await act(async () => {
+      vi.advanceTimersByTime(5000)
+    })
+    expect(result.current.isPending).toBe(false)
+  })
+
+  it('isPending balik ke false kalau Undo diklik', () => {
+    const { Wrapper } = createWrapper()
+    const { result } = renderHook(() => useCheckIn('habit-1'), {
+      wrapper: Wrapper,
+    })
+
+    act(() => result.current.requestCheckIn('berhasil'))
+    const undoOnClick = (toast as any).mock.calls[0][1].action.onClick
+    act(() => undoOnClick())
+
+    expect(result.current.isPending).toBe(false)
+  })
 })

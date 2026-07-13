@@ -15,7 +15,7 @@ export function HabitCard({
   sudahCheckIn: boolean
 }) {
   const queryClient = useQueryClient()
-  const { requestCheckIn } = useCheckIn(habit.id)
+  const { requestCheckIn, isPending } = useCheckIn(habit.id)
   const [lastEvent, setLastEvent] = useState<
     'stage_up' | 'endgame' | 'progress' | 'none'
   >('none')
@@ -79,7 +79,7 @@ export function HabitCard({
           <>
             <Button
               size="sm"
-              disabled={sudahCheckIn}
+              disabled={sudahCheckIn || isPending}
               onClick={() => {
                 setLastEvent('none')
                 requestCheckIn('berhasil', (e) => setLastEvent(e as any))
@@ -90,7 +90,7 @@ export function HabitCard({
             <Button
               size="sm"
               variant="outline"
-              disabled={sudahCheckIn}
+              disabled={sudahCheckIn || isPending}
               onClick={() => requestCheckIn('gagal')}
             >
               Gagal

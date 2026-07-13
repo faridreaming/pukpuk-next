@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
@@ -10,6 +10,7 @@ export function useCheckIn(habitId: string) {
     timeoutId: number
     toastId: string | number
   } | null>(null)
+  const [isPending, setIsPending] = useState(false)
 
   async function commit(
     status: 'berhasil' | 'gagal',
@@ -19,6 +20,7 @@ export function useCheckIn(habitId: string) {
       p_habit_id: habitId,
       p_status: status,
     })
+    setIsPending(false)
     if (error) {
       toast.error('Gagal menyimpan check-in')
       return
@@ -45,6 +47,8 @@ export function useCheckIn(habitId: string) {
       toast.dismiss(pendingRef.current.toastId)
     }
 
+    setIsPending(true)
+
     const timeoutId = window.setTimeout(() => {
       pendingRef.current = null
       commit(status, onEvent)
@@ -61,6 +65,7 @@ export function useCheckIn(habitId: string) {
           onClick: () => {
             clearTimeout(timeoutId)
             pendingRef.current = null
+            setIsPending(false)
           },
         },
       },
@@ -69,5 +74,5 @@ export function useCheckIn(habitId: string) {
     pendingRef.current = { timeoutId, toastId }
   }
 
-  return { requestCheckIn }
+  return { requestCheckIn, isPending }
 }
