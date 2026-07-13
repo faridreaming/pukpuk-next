@@ -7,11 +7,13 @@ import { supabase } from '@/lib/supabase'
 import { HabitCard } from './HabitCard'
 import { Plus, Target } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { LogOut } from 'lucide-react'
 
 async function fetchHabits() {
   const { data, error } = await supabase
     .from('habits')
     .select('*, habit_stages!habit_id(*)')
+    .neq('status', 'archived')
   if (error) throw error
   return data
 }
@@ -24,6 +26,10 @@ async function fetchTodayCheckIns() {
     .eq('tanggal', today)
   if (error) throw error
   return new Set(data.map((c) => c.habit_id))
+}
+
+async function handleLogout() {
+  await supabase.auth.signOut()
 }
 
 export function HabitsPage() {
@@ -104,11 +110,21 @@ export function HabitsPage() {
         >
           Habit kamu
         </h1>
-        <Link to="/habits/new">
-          <Button size="sm">
-            <Plus className="mr-1 h-4 w-4" /> Tambah Habit
+        <div className="flex items-center gap-2">
+          <Link to="/habits/new">
+            <Button size="sm">
+              <Plus className="mr-1 h-4 w-4" /> Tambah Habit
+            </Button>
+          </Link>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleLogout}
+            title="Keluar"
+          >
+            <LogOut className="h-4 w-4" />
           </Button>
-        </Link>
+        </div>
       </div>
 
       {habits?.length === 0 && (

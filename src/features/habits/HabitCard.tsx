@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
 import { useCheckIn } from './useCheckIn'
 import { StageTrack } from './StageTrack'
+import { Archive } from 'lucide-react'
 
 const DURASI_HARI = 7 // samain dengan konstanta di RPC create_check_in
 
@@ -32,6 +33,17 @@ export function HabitCard({
     if (!error) queryClient.invalidateQueries({ queryKey: ['habits'] })
   }
 
+  async function handleArchive() {
+    const confirmed = window.confirm(
+      `Arsipkan "${habit.nama}"? Riwayat check-in tetap tersimpan, tapi habit ini nggak muncul lagi di daftar.`,
+    )
+    if (!confirmed) return
+    const { error } = await supabase.rpc('archive_habit', {
+      p_habit_id: habit.id,
+    })
+    if (!error) queryClient.invalidateQueries({ queryKey: ['habits'] })
+  }
+
   return (
     <div
       className="habit-card rounded-xl border p-4"
@@ -47,22 +59,32 @@ export function HabitCard({
         >
           {habit.nama}
         </h3>
-        {habit.status === 'maintenance' && (
-          <span
-            className="flex items-center gap-1 text-xs"
-            style={{ color: 'var(--pukpuk-moss)' }}
+        <div className="flex items-center gap-2">
+          {habit.status === 'maintenance' && (
+            <span
+              className="flex items-center gap-1 text-xs"
+              style={{ color: 'var(--pukpuk-moss)' }}
+            >
+              <Sparkles className="h-3 w-3" /> maintenance
+            </span>
+          )}
+          {habit.status === 'paused' && (
+            <span
+              className="flex items-center gap-1 text-xs"
+              style={{ color: 'var(--pukpuk-brick)' }}
+            >
+              <PauseCircle className="h-3 w-3" /> paused
+            </span>
+          )}
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={handleArchive}
+            title="Arsipkan habit"
           >
-            <Sparkles className="h-3 w-3" /> maintenance
-          </span>
-        )}
-        {habit.status === 'paused' && (
-          <span
-            className="flex items-center gap-1 text-xs"
-            style={{ color: 'var(--pukpuk-brick)' }}
-          >
-            <PauseCircle className="h-3 w-3" /> paused
-          </span>
-        )}
+            <Archive className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {habit.status !== 'paused' && (
