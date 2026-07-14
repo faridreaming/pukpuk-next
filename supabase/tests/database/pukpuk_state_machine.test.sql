@@ -1,4 +1,4 @@
-begin;
+﻿begin;
 create extension if not exists pgtap with schema extensions;
 
 select plan(8);
@@ -16,7 +16,7 @@ insert into public.habits
   (id, user_id, nama, target_akhir_nilai, target_akhir_unit, stage_saat_ini, status, nyawa_tersisa, progress_hari_sukses, last_evaluated_date)
 values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111',
-   'meditasi', 30, 'menit', 1, 'active', 3, 0, current_date);
+   'meditasi', 30, 'menit', 1, 'active', 3, 0, today_wib());
 
 insert into public.habit_stages (habit_id, stage_number, target_harian, nyawa_maks) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 1, 6, 3),
@@ -76,7 +76,7 @@ select results_eq(
 -- Test 7
 update habits set
   status = 'active', stage_saat_ini = 2, nyawa_tersisa = 1,
-  progress_hari_sukses = 5, last_evaluated_date = current_date - 1
+  progress_hari_sukses = 5, last_evaluated_date = today_wib() - 1
 where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 
 select evaluate_habit_lazy('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');

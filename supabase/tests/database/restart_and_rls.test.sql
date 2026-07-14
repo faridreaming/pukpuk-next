@@ -1,4 +1,4 @@
-begin;
+﻿begin;
 create extension if not exists pgtap with schema extensions;
 select plan(8);
 
@@ -10,9 +10,9 @@ insert into public.habits
   (id, user_id, nama, target_akhir_nilai, target_akhir_unit, stage_saat_ini, status, nyawa_tersisa, progress_hari_sukses, last_evaluated_date)
 values
   ('cccccccc-cccc-cccc-cccc-cccccccccccc', '55555555-5555-5555-5555-555555555555',
-   'baca buku', 100, 'halaman', 3, 'paused', 0, 2, current_date),
+   'baca buku', 100, 'halaman', 3, 'paused', 0, 2, today_wib()),
   ('dddddddd-dddd-dddd-dddd-dddddddddddd', '55555555-5555-5555-5555-555555555555',
-   'push up', 50, 'reps', 1, 'active', 2, 1, current_date);
+   'push up', 50, 'reps', 1, 'active', 2, 1, today_wib());
 
 insert into public.habit_stages (habit_id, stage_number, target_harian, nyawa_maks) values
   ('cccccccc-cccc-cccc-cccc-cccccccccccc', 1, 20, 4),
@@ -21,7 +21,7 @@ insert into public.habit_stages (habit_id, stage_number, target_harian, nyawa_ma
   ('dddddddd-dddd-dddd-dddd-dddddddddddd', 1, 50, 3);
 
 insert into public.check_ins (habit_id, tanggal, status) values
-  ('dddddddd-dddd-dddd-dddd-dddddddddddd', current_date - 1, 'berhasil');
+  ('dddddddd-dddd-dddd-dddd-dddddddddddd', today_wib() - 1, 'berhasil');
 
 set local role authenticated;
 set local request.jwt.claim.sub = '55555555-5555-5555-5555-555555555555';
