@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 import { useCheckIn } from './useCheckIn'
 import { StageTrack } from './StageTrack'
 import { Archive } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import { HabitHistory } from './HabitHistory'
 
 const DURASI_HARI = 7 // samain dengan konstanta di RPC create_check_in
 
@@ -25,6 +27,8 @@ export function HabitCard({
   const currentStage = habit.habit_stages?.find(
     (s: any) => s.stage_number === habit.stage_saat_ini,
   )
+
+  const [showHistory, setShowHistory] = useState(false)
 
   async function handleRestart() {
     const { error } = await supabase.rpc('restart_habit', {
@@ -97,6 +101,22 @@ export function HabitCard({
           durasiHari={DURASI_HARI}
           event={lastEvent}
         />
+      )}
+
+      <button
+        onClick={() => setShowHistory((s) => !s)}
+        className="mt-2 flex items-center gap-1 text-xs"
+        style={{ color: 'var(--pukpuk-parchment)', opacity: 0.6 }}
+      >
+        {showHistory ? (
+          <ChevronUp className="h-3 w-3" />
+        ) : (
+          <ChevronDown className="h-3 w-3" />
+        )}
+        riwayat 30 hari
+      </button>
+      {showHistory && (
+        <HabitHistory habitId={habit.id} createdAt={habit.created_at} />
       )}
 
       <div className="mt-4 flex gap-2">

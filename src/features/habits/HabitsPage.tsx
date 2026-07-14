@@ -1,13 +1,13 @@
-import { useEffect, useRef } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router'
-import gsap from 'gsap'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase'
-import { HabitCard } from './HabitCard'
-import { Plus, Target } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { LogOut } from 'lucide-react'
+import { todayLocalDateString } from '@/lib/date'
+import { supabase } from '@/lib/supabase'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import gsap from 'gsap'
+import { LogOut, Plus, Target } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { Link } from 'react-router'
+import { HabitCard } from './HabitCard'
 
 async function fetchHabits() {
   const { data, error } = await supabase
@@ -19,7 +19,7 @@ async function fetchHabits() {
 }
 
 async function fetchTodayCheckIns() {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayLocalDateString()
   const { data, error } = await supabase
     .from('check_ins')
     .select('habit_id')
