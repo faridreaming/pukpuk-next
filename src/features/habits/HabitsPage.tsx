@@ -112,7 +112,10 @@ export function HabitsPage() {
         </h1>
         <div className="flex items-center gap-2">
           <Link to="/habits/new">
-            <Button size="sm">
+            <Button
+              size="sm"
+              className="bg-[var(--pukpuk-ember)] text-[var(--pukpuk-ink)] hover:bg-[var(--pukpuk-ember)]/90"
+            >
               <Plus className="mr-1 h-4 w-4" /> Tambah Habit
             </Button>
           </Link>

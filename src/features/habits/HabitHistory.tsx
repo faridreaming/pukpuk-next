@@ -23,10 +23,8 @@ function buildDays(
 
   for (let i = 29; i >= 0; i--) {
     const key = shiftDaysLocal(i)
-    days.push({
-      date: key,
-      status: key < createdDate ? 'future' : (map.get(key) ?? 'none'),
-    })
+    if (key < createdDate) continue // <- skip total, bukan render transparan
+    days.push({ date: key, status: map.get(key) ?? 'none' })
   }
   return days
 }
@@ -35,7 +33,6 @@ const COLOR: Record<string, string> = {
   berhasil: 'var(--pukpuk-moss)',
   gagal: 'var(--pukpuk-brick)',
   none: 'var(--pukpuk-ash)',
-  future: 'transparent',
 }
 
 export function HabitHistory({
